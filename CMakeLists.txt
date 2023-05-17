@@ -4,6 +4,7 @@ project(VideoApp)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(lib/glfw)
+add_definitions(-DGL_SILENCE_DEPRECATION)
 
 if(APPLE)
     list(APPEND EXTRA_LIBS
