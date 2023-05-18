@@ -103,20 +103,45 @@ bool loadFrame(const char *filename, unsigned char **data_out, int *width_out, i
         break;
     }
 
-    // save frame data
-    unsigned char* data = (unsigned char *) malloc(pFrame->width * pFrame->height * 3);
-    for (int x = 0; x < pFrame->width; ++x) {
-        for (int y = 0; y < pFrame->height; ++y) {
-            data[y * pFrame->width * 3 + x * 3 + 0] = pFrame->data[0][y * pFrame->linesize[0] + x];
-            data[y * pFrame->width * 3 + x * 3 + 1] = pFrame->data[0][y * pFrame->linesize[0] + x];
-            data[y * pFrame->width * 3 + x * 3 + 2] = pFrame->data[0][y * pFrame->linesize[0] + x];
-        }
+    auto* data = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * av_codec_ctx->width * av_codec_ctx->height * 4));
+    // convert the image from its native format to RGB
+    SwsContext *sws_ctx = sws_getContext(
+            av_codec_ctx->width,
+            av_codec_ctx->height,
+            av_codec_ctx->pix_fmt,
+            av_codec_ctx->width,
+            av_codec_ctx->height,
+            AV_PIX_FMT_RGBA,
+            SWS_BILINEAR,
+            NULL,
+            NULL,
+            NULL
+    );
+
+    if (!sws_ctx) {
+        printf("Couldn't create SwsContext\n");
+        return false;
     }
+
+    uint8_t* dest[4] = { data, 0, 0, 0 };
+    int dest_linesize[4] = { pFrame->width * 4, 0, 0, 0 };
+
+    sws_scale(
+            sws_ctx,
+            (uint8_t const *const *) pFrame->data,
+            pFrame->linesize,
+            0,
+            av_codec_ctx->height,
+            dest,
+            dest_linesize
+    );
+
 
     *data_out = data;
     *width_out = pFrame->width;
     *height_out = pFrame->height;
 
+    sws_freeContext(sws_ctx);
     av_frame_free(&pFrame);
     avcodec_free_context(&av_codec_ctx);
     avformat_close_input(&pFormatCtx);
