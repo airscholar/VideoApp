@@ -3,6 +3,8 @@ project(VideoApp)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 add_subdirectory(lib/glfw)
 add_subdirectory(lib/FFmpeg)
 add_definitions(-DGL_SILENCE_DEPRECATION)
@@ -23,6 +25,10 @@ else ()
 
 endif()
 
+list(APPEND SOURCES
+    src/main.cpp
+    src/loadFrame.cpp
+)
 
-add_executable(VideoApp src/main.cpp)
+add_executable(VideoApp ${SOURCES})
 target_link_libraries(VideoApp FFmpeg glfw ${EXTRA_LIBS})
