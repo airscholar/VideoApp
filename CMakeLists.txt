@@ -4,6 +4,7 @@ project(VideoApp)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(lib/glfw)
+add_subdirectory(lib/FFmpeg)
 add_definitions(-DGL_SILENCE_DEPRECATION)
 
 if(APPLE)
@@ -24,4 +25,4 @@ endif()
 
 
 add_executable(VideoApp src/main.cpp)
-target_link_libraries(VideoApp glfw ${EXTRA_LIBS})
+target_link_libraries(VideoApp FFmpeg glfw ${EXTRA_LIBS})
